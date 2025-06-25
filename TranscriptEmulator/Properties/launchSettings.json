@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TranscriptEmulator": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
