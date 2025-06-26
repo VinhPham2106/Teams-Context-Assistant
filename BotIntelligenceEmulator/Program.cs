@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -9,10 +10,12 @@ using System.Threading.Tasks;
 using DotNetEnv;
 using WebSocketSharp;
 using WebSocketSharp.Server;
-using BotIntelligence;       
+using BotIntelligence;        
 
 internal record TranscriptPayload(string Speaker, string Transcript);
 internal record SuggestionPayload(string SuggestionMarkdown);
+
+
 
 internal sealed class TranscriptReceiver : WebSocketBehavior
 {
@@ -37,6 +40,7 @@ internal sealed class TranscriptReceiver : WebSocketBehavior
     }
 }
 
+
 internal static class Program
 {
     private const int BatchSize = 4;
@@ -47,13 +51,17 @@ internal static class Program
     private static int _batchNo;
     private static WebSocketServer? _wss;
 
+    
     private static async Task ProcessBatchAsync(IEnumerable<TranscriptPayload> batch)
     {
         string transcript = string.Join(' ', batch.Select(p => p.Transcript));
         if (string.IsNullOrWhiteSpace(transcript)) return;
 
-        Console.WriteLine($"\n── Batch {++_batchNo} ({transcript.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length} words) ──\n");
+        Console.WriteLine(
+            $"\n── Batch {++_batchNo} "
+          + $"({transcript.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length} words) ──\n");
 
+        
         Env.Load();
 
         var glossary = new Dictionary<string, string>(Glossary.Items, StringComparer.OrdinalIgnoreCase);
@@ -63,8 +71,12 @@ internal static class Program
 
         using var openAi = new OpenAiService(apiKey);
 
+      
         string topic = await openAi.ClassifyTopicAsync(MeetingTopics.List, transcript);
 
+        IReadOnlyList<string> links = await openAi.RecommendTechLinksAsync(transcript, maxLinks: 3);
+
+       
         var defs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var cameFromGlossary = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -73,7 +85,7 @@ internal static class Program
             string term = m.Value;
             if (defs.ContainsKey(term)) continue;
 
-            if (glossary.TryGetValue(term, out var meaning))
+            if (glossary.TryGetValue(term, out string? meaning))
             {
                 defs[term] = meaning;
                 cameFromGlossary.Add(term);
@@ -87,21 +99,44 @@ internal static class Program
         foreach (var term in cameFromGlossary)
             defs[term] = await openAi.EnhanceAsync(term, defs[term]);
 
-        string markdown = defs.Count == 0
-            ? $"**Topic of Discussion:** {topic}"
-            : $"**Topic of Discussion:** {topic}\n\n{$"**Term Definitions:**"}\n\n{await openAi.BeautifyAsync(defs)}";
+        var sb = new StringBuilder();
 
+      
+        sb.AppendLine($"**Topic of Discussion:** {topic}");
+
+        if (links.Count > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("**Relevant Technical Resources:**");
+            foreach (var url in links)
+                sb.AppendLine($"- {url}");
+        }
+
+       
+        if (defs.Count > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("**Term Definitions:**");
+            sb.AppendLine();
+            sb.AppendLine(await openAi.BeautifyAsync(defs));
+        }
+
+        string markdown = sb.ToString();
+
+       
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine(markdown + "\n");
         Console.ResetColor();
 
-        var json = JsonSerializer.Serialize(new SuggestionPayload(markdown));
+        string json = JsonSerializer.Serialize(new SuggestionPayload(markdown));
         _wss!.WebSocketServices["/Transcript"].Sessions.Broadcast(json);
     }
 
+    
     private static void Main()
     {
         _wss = new WebSocketServer("ws://localhost:9999");
+
         _wss.AddWebSocketService(
             "/Transcript",
             () => new TranscriptReceiver(chunk =>

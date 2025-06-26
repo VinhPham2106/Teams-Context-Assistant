@@ -10,7 +10,7 @@ namespace TranscriptEmulator
     public class TranscriptEmulator
     {
         private readonly WebSocket _webSocket;
-        private int _maxWordsPerNotitification = 20;
+        private int _maxWordsPerNotitification = 10;
         private int _delayPerWord = 600;
         private string _transcriptFileName = "defaultTranscript.json";
         public TranscriptEmulator(WebSocket webSocket)

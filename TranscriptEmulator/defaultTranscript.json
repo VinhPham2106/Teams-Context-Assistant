@@ -1,7 +1,7 @@
 [
   {
     "Speaker": "EngManager",
-    "Transcript": "Good morning, SecOps. We are going to begin our Sprint for today and talk about our status and progress. Agenda: 60-second status, blockers, cross-team dependencies, and a quick look at the new Zero-Trust KPI workbook. Let’s start with me."
+    "Transcript": "Good morning, SecOps. We are going to begin our status updates, and emphasize your updates on the LLM, RAG, and COT integration. The agenda for today is 60-second status, blockers, cross-team dependencies, and a quick look at the new Zero-Trust KPI workbook. Let’s start with me."
   },
   {
     "Speaker": "EngManager",

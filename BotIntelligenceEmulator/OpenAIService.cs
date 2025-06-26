@@ -141,7 +141,41 @@ namespace BotIntelligence
 
             return JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
         }
+        public async Task<IReadOnlyList<string>> RecommendTechLinksAsync(
+    string transcript,
+    int maxLinks = 2,
+    string model = DefaultModel,
+    CancellationToken ct = default)
+        {
+            var body = new
+            {
+                model,
+                temperature = 0,
+                messages = new[]
+                {
+            new {
+                role    = "system",
+                content = $"You are a knowledgeable assistant. " +
+                          $"Return up to {maxLinks} authoritative TECHNICAL URLs " +
+                          $"(one per line, no extra text) that help understand or implement " +
+                          $"concepts appearing in the provided transcript. Only give the most relevant technical resource if it exists"
+            },
+            new { role = "user", content = transcript }
+        }
+            };
 
+            using JsonDocument json = await PostJsonAsync(body, ct);
+            string raw = ExtractContent(json);
+
+            var links = raw.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                           .Select(l => l.Trim())
+                           .Where(l => l.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                           .Distinct()
+                           .Take(maxLinks)
+                           .ToArray();
+
+            return links;
+        }
         private static string ExtractContent(JsonDocument json) =>
             json.RootElement.GetProperty("choices")[0]
                 .GetProperty("message").GetProperty("content")

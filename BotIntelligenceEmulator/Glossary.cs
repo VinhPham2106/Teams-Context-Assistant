@@ -19,7 +19,10 @@ namespace BotIntelligence
 				["JEA"] = "Just Enough Administration – PowerShell role-based access pattern limiting cmdlet exposure",
 				["COB"] = "Close of Business – end of the working day (often 5 p.m. local)",
 				["EOD"] = "End of Day – similar to COB but can imply later evening cut-off in DevOps teams",
-				["PR"] = "Pull Request"
+				["PR"] = "Pull Request",
+				["LLM"] = "Large Language Model",
+				["COT"] = "Chain of Thought",
+				["RAG"] = "Retrieval-Augmented Generation"
 			};
 	}
 }
