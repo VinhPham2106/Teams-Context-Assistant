@@ -1,57 +1,38 @@
 [
   {
     "Speaker": "Manager",
-    "Transcript": "Hello guys"
-  },
-  {
-    "Speaker": "Dev1",
-    "Transcript": "Hello"
+    "Transcript": "Good morning, teamâ€”time for our daily scrum. Agenda: yesterdayâ€™s progress, todayâ€™s plan, blockers. Weâ€™ll also touch on the new KPI project with its strict SLA, intern onboarding, and the Grafana dashboard behind Traefik."
   },
   {
     "Speaker": "Manager",
-    "Transcript": "We have a new project to work on."
+    "Transcript": "Yesterday I finalized the SOW and drafted the OKRs. Today Iâ€™m grooming the Jira backlog and locking down KPI and SLA targets with Product. No blockers."
   },
   {
     "Speaker": "Dev1",
-    "Transcript": "What is the project about?"
-  },
-  {
-    "Speaker": "Manager",
-    "Transcript": "It's a web application for managing tasks."
+    "Transcript": "Yesterday I completed the React UI scaffold and opened a PR. Today Iâ€™ll integrate the Auth API and start Cypress tests. Blocker: need Dev2â€™s code review by EOD."
   },
   {
     "Speaker": "Dev2",
-    "Transcript": "Sounds interesting! When do we start?"
-  },
-  {
-    "Speaker": "Manager",
-    "Transcript": "We can start next week. Alright everyone, before we dive into today’s agenda, I’d like to take a moment to welcome someone new to the team. As you all know, we’re always looking for fresh perspectives and bright minds to join us, and this summer we’re lucky to have an intern who’s already shown great enthusiasm and curiosity. So, without further ado, I’d like to introduce you all to our new intern. I won’t steal their thunder—I'll let them tell you more about themselves. Please give them your full attention and a warm welcome. Go ahead, the floor is yours!"
+    "Transcript": "Yesterday I provisioned the VPC and ECS cluster via Terraform. Today Iâ€™m containerizing the core service and wiring it into the CI/CD pipeline. Blocker: waiting on IAM-policy approval."
   },
   {
     "Speaker": "Intern",
-    "Transcript": "Thank you so much for the warm welcome! I’m genuinely thrilled to be here and to have the opportunity to learn from such a talented and experienced team. My name is Priya Desai, and I’m currently a third-year student at the University of Washington, majoring in Computer Science with a minor in Human-Centered Design and Engineering. I’ve always been fascinated by the intersection of technology and people—how we can build systems that not only function efficiently but also resonate with users on a human level. A little about my background: I grew up in a small town in Oregon, where I spent a lot of time tinkering with old computers, building websites for local businesses, and volunteering at the public library to teach seniors how to use smartphones. That early exposure to both tech and community service really shaped my values and aspirations. At university, I’ve been involved in several projects and organizations. I’m part of the Women in Tech initiative, where I mentor first-year students and help organize events to promote diversity in STEM. I also worked on a research project last semester focused on ethical AI, which involved analyzing bias in machine learning datasets and proposing mitigation strategies. Outside of academics, I’m a huge fan of storytelling in all forms—books, podcasts, video games, you name it. I believe stories are powerful tools for empathy and understanding, and I try to bring that mindset into my work, whether I’m designing a user interface or debugging a tricky piece of code. During this internship, I’m hoping to deepen my technical skills, especially in backend development and cloud infrastructure, but I’m also really eager to learn about the team’s workflow, how you collaborate across departments, and how you approach problem-solving in real-world scenarios. I’m here to absorb as much as I can, contribute wherever possible, and hopefully bring a little extra energy and curiosity to the team. Thank you again for having me—I’m really looking forward to working with all of you!"
-  },
-  { "Speaker": "Dev1",
-    "Transcript": "Great! Looking forward to it."
-  },
-  {
-    "Speaker": "Dev2",
-    "Transcript": "Yes, welcome aboard!"
+    "Transcript": "Yesterday I finished onboarding and set up the dev environment. Today Iâ€™ll shadow Dev1 and pick up a good-first-issue: refreshing Grafana panels. No blockers so far."
   },
   {
     "Speaker": "Manager",
-    "Transcript": "It's great to have you, Priya! Looking forward to seeing your contributions."
+    "Transcript": "Great updates. Finance expects initial ROI metrics by Sprint 3, so letâ€™s track that. Dev2, once IAM is cleared, please update the SLA dashboard."
   },
   {
     "Speaker": "Dev1",
-    "Transcript": "Let’s take advantage of your fresh perspective!"
+    "Transcript": "Quick question: whatâ€™s the ETA for the new Grafana instance behind Traefik?"
   },
   {
     "Speaker": "Dev2",
-    "Transcript": "Absolutely! Teamwork will make this project even better."
+    "Transcript": "Should have a working POC by COB tomorrow."
   },
   {
     "Speaker": "Manager",
-    "Transcript": "Next, let's discuss our project timeline and key milestones. Let's first talk about our Grafana Dashboard, which sits behind Traefik"
+    "Transcript": "Perfect. Action items: Dev2 to resolve IAM, Dev1 to finish Auth integration, Intern to prep Grafana mock-ups, and Iâ€™ll complete backlog grooming. Thanks everyoneâ€”stand-up adjourned."
   }
 ]
