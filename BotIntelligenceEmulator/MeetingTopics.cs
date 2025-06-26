@@ -7,17 +7,22 @@ namespace BotIntelligence
     {
         public static readonly string[] List =
         {
-            "Sprint Status",
-            "Action Items",
-            "Blockers",
-            "ROI Planning",
-            "Grafana Dashboard",
-            "Traefik Ingress",
-            "CI/CD Pipeline",
-            "Code Review / PRs",
-            "Intern Onboarding",
-            "Project Timeline",
-            "Product Roadmap"
+            "Status Updates",      
+            "Blockers & Risks",
+            "Action Items & Next Steps",
+            "Dependencies",
+            "Announcements",
+
+            "Security & Identity",          
+            "DevOps & Infrastructure",       
+            "Observability & Monitoring",  
+            "Quality & Testing",             
+
+       
+            "Metrics & KPIs",               
+            "Business Impact & ROI",
+            "People & Onboarding",          
+            "Planning & Roadmap"        
         };
     }
 }

@@ -88,8 +88,8 @@ internal static class Program
             defs[term] = await openAi.EnhanceAsync(term, defs[term]);
 
         string markdown = defs.Count == 0
-            ? $"**Current Topic of Discussion:** {topic}"
-            : $"**Current Topic of Discussion:** {topic}\n\n{await openAi.BeautifyAsync(defs)}";
+            ? $"**Topic of Discussion:** {topic}"
+            : $"**Topic of Discussion:** {topic}\n\n{$"**Term Definitions:**"}\n\n{await openAi.BeautifyAsync(defs)}";
 
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine(markdown + "\n");

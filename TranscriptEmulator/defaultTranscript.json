@@ -1,38 +1,42 @@
 [
   {
-    "Speaker": "Manager",
-    "Transcript": "Good morning, team—time for our daily scrum. Agenda: yesterday’s progress, today’s plan, blockers. We’ll also touch on the new KPI project with its strict SLA, intern onboarding, and the Grafana dashboard behind Traefik."
+    "Speaker": "EngManager",
+    "Transcript": "Good morning, SecOps. We are going to begin our Sprint for today and talk about our status and progress. Agenda: 60-second status, blockers, cross-team dependencies, and a quick look at the new Zero-Trust KPI workbook. Let’s start with me."
   },
   {
-    "Speaker": "Manager",
-    "Transcript": "Yesterday I finalized the SOW and drafted the OKRs. Today I’m grooming the Jira backlog and locking down KPI and SLA targets with Product. No blockers."
+    "Speaker": "EngManager",
+    "Transcript": "Yesterday I met with CSEO to lock in Sprint-28 OKRs and secured budget for the MFA adoption push. Today I’ll finish grooming the ADO backlog and publish SLA targets for mean-time-to-detect. No blockers."
   },
   {
-    "Speaker": "Dev1",
-    "Transcript": "Yesterday I completed the React UI scaffold and opened a PR. Today I’ll integrate the Auth API and start Cypress tests. Blocker: need Dev2’s code review by EOD."
+    "Speaker": "SecurityEng1",
+    "Transcript": "Yesterday I updated the Conditional-Access policy engine to support device-trust signals. PR-1023 is open. Today I’m wiring that change into the Azure DevOps pipeline and adding unit tests. Blocker: need SecurityEng2’s review by 3 PM."
   },
   {
-    "Speaker": "Dev2",
-    "Transcript": "Yesterday I provisioned the VPC and ECS cluster via Terraform. Today I’m containerizing the core service and wiring it into the CI/CD pipeline. Blocker: waiting on IAM-policy approval."
+    "Speaker": "SecurityEng2",
+    "Transcript": "Yesterday I finished the Bicep templates for the new Defender-for-Cloud analytics workspace. Today I’m enabling Continuous-Export to Log Analytics and adding alerts to the SOC playbook. Blocker: waiting on the new Sentinel data-connector to clear legal review."
+  },
+  {
+    "Speaker": "Analyst",
+    "Transcript": "Yesterday I ran the Purple-Team exercise and tagged four new attack paths in MTP. Today I’m validating those paths against Secure Score and updating the Zero-Trust KPI workbook. No blockers."
   },
   {
     "Speaker": "Intern",
-    "Transcript": "Yesterday I finished onboarding and set up the dev environment. Today I’ll shadow Dev1 and pick up a good-first-issue: refreshing Grafana panels. No blockers so far."
+    "Transcript": "Yesterday I wrapped up my security-fundamentals onboarding and cloned the lab environment. Today I’ll pair with Analyst to build the workbook heat-map and file my first bug on the dashboard layout. All good so far."
   },
   {
-    "Speaker": "Manager",
-    "Transcript": "Great updates. Finance expects initial ROI metrics by Sprint 3, so let’s track that. Dev2, once IAM is cleared, please update the SLA dashboard."
+    "Speaker": "EngManager",
+    "Transcript": "Noted. SecurityEng2, once Sentinel is unblocked, please loop back to SecurityEng1 for end-to-end validation. Everyone: Finance wants preliminary ROI numbers on reduced breach-investigation hours by Sprint-30."
   },
   {
-    "Speaker": "Dev1",
-    "Transcript": "Quick question: what’s the ETA for the new Grafana instance behind Traefik?"
+    "Speaker": "SecurityEng1",
+    "Transcript": "Quick question: what’s the ETA on the new Key-Vault RBAC policy from IAM?"
   },
   {
-    "Speaker": "Dev2",
-    "Transcript": "Should have a working POC by COB tomorrow."
+    "Speaker": "SecurityEng2",
+    "Transcript": "IAM team says we should have the policy object in Azure Policy by tomorrow COB. I’ll test it right after."
   },
   {
-    "Speaker": "Manager",
-    "Transcript": "Perfect. Action items: Dev2 to resolve IAM, Dev1 to finish Auth integration, Intern to prep Grafana mock-ups, and I’ll complete backlog grooming. Thanks everyone—stand-up adjourned."
+    "Speaker": "EngManager",
+    "Transcript": "Great. Action items: SecurityEng2—Sentinel connector and RBAC policy test; SecurityEng1—merge PR-1023 and pipeline updates; Analyst—publish the KPI workbook draft; Intern—finish the heat-map. I’ll close out backlog grooming. Stand-up adjourned."
   }
 ]
