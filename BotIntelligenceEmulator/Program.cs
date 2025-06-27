@@ -1,161 +1,267 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using WebSocketSharp;
+
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using DotNetEnv;
-using WebSocketSharp;
-using WebSocketSharp.Server;
-using BotIntelligence;        
 
-internal record TranscriptPayload(string Speaker, string Transcript);
-internal record SuggestionPayload(string SuggestionMarkdown);
+using System.Diagnostics;
 
 
 
-internal sealed class TranscriptReceiver : WebSocketBehavior
+
+
+
+
+namespace TranscriptEmulator
+
 {
-    private readonly Action<TranscriptPayload> _onChunk;
-    public TranscriptReceiver(Action<TranscriptPayload> onChunk) => _onChunk = onChunk;
 
-    protected override void OnMessage(MessageEventArgs e)
+
+
+    public class TranscriptEmulator
+
     {
-        try
+
+        private readonly WebSocket _webSocket;
+
+        private int _maxWordsPerNotitification = 10;
+
+        private int _delayPerWord = 600;
+
+        private string _transcriptFileName = "defaultTranscript.json";
+
+        private static int _batchNo;
+
+        public TranscriptEmulator(WebSocket webSocket)
+
         {
-            var payload = JsonSerializer.Deserialize<TranscriptPayload>(e.Data);
-            if (payload != null)
+
+            _webSocket = webSocket;
+
+        }
+
+
+
+
+
+        public void SendTranscript()
+
+        {
+
+            string jsonString = File.ReadAllText(_transcriptFileName);
+
+            try
+
             {
-                _onChunk(payload);
-                Send(@"{""received"":1}");
-            }
-        }
-        catch
-        {
-            Send(@"{""error"":""bad payload""}");
-        }
-    }
-}
 
+                List<TranscriptPayload> entries = JsonSerializer.Deserialize<List<TranscriptPayload>>(jsonString);
 
-internal static class Program
-{
-    private const int BatchSize = 4;
-    private static readonly Regex AcronymRegex = new(@"\b[A-Z]{2,5}\b");
+                if (entries == null || entries.Count == 0)
 
-    private static readonly ConcurrentQueue<TranscriptPayload> _queue = new();
-    private static int _totalChunks;
-    private static int _batchNo;
-    private static WebSocketServer? _wss;
-
-    
-    private static async Task ProcessBatchAsync(IEnumerable<TranscriptPayload> batch)
-    {
-        string transcript = string.Join(' ', batch.Select(p => p.Transcript));
-        if (string.IsNullOrWhiteSpace(transcript)) return;
-
-        Console.WriteLine(
-            $"\n── Batch {++_batchNo} "
-          + $"({transcript.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length} words) ──\n");
-
-        
-        Env.Load();
-
-        var glossary = new Dictionary<string, string>(Glossary.Items, StringComparer.OrdinalIgnoreCase);
-
-        var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY")
-                     ?? throw new InvalidOperationException("OPENAI_API_KEY not found");
-
-        using var openAi = new OpenAiService(apiKey);
-
-      
-        string topic = await openAi.ClassifyTopicAsync(MeetingTopics.List, transcript);
-
-        IReadOnlyList<string> links = await openAi.RecommendTechLinksAsync(transcript, maxLinks: 3);
-
-       
-        var defs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var cameFromGlossary = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (Match m in AcronymRegex.Matches(transcript))
-        {
-            string term = m.Value;
-            if (defs.ContainsKey(term)) continue;
-
-            if (glossary.TryGetValue(term, out string? meaning))
-            {
-                defs[term] = meaning;
-                cameFromGlossary.Add(term);
-            }
-            else
-            {
-                defs[term] = await openAi.DefineAsync(term);
-            }
-        }
-
-        foreach (var term in cameFromGlossary)
-            defs[term] = await openAi.EnhanceAsync(term, defs[term]);
-
-        var sb = new StringBuilder();
-
-      
-        sb.AppendLine($"**Topic of Discussion:** {topic}");
-
-        if (links.Count > 0)
-        {
-            sb.AppendLine();
-            sb.AppendLine("**Relevant Technical Resources:**");
-            foreach (var url in links)
-                sb.AppendLine($"- {url}");
-        }
-
-       
-        if (defs.Count > 0)
-        {
-            sb.AppendLine();
-            sb.AppendLine("**Term Definitions:**");
-            sb.AppendLine();
-            sb.AppendLine(await openAi.BeautifyAsync(defs));
-        }
-
-        string markdown = sb.ToString();
-
-       
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine(markdown + "\n");
-        Console.ResetColor();
-
-        string json = JsonSerializer.Serialize(new SuggestionPayload(markdown));
-        _wss!.WebSocketServices["/Transcript"].Sessions.Broadcast(json);
-    }
-
-    
-    private static void Main()
-    {
-        _wss = new WebSocketServer("ws://localhost:9999");
-
-        _wss.AddWebSocketService(
-            "/Transcript",
-            () => new TranscriptReceiver(chunk =>
-            {
-                _queue.Enqueue(chunk);
-
-                if (Interlocked.Increment(ref _totalChunks) % BatchSize == 0)
                 {
-                    var batch = new List<TranscriptPayload>(BatchSize);
-                    for (int i = 0; i < BatchSize && _queue.TryDequeue(out var item); i++)
-                        batch.Add(item);
 
-                    _ = Task.Run(() => ProcessBatchAsync(batch));
+                    Console.WriteLine("No transcript entries found or deserialization failed.");
+
+                    return;
+
                 }
-            }));
 
-        _wss.Start();
-        Console.WriteLine("Bot listening on ws://localhost:9999/Transcript  (press ENTER to quit)");
-        Console.ReadLine();
-        _wss.Stop();
+                foreach (var entry in entries)
+
+                {
+
+                    string[] words = entry.Transcript.Split(' ');
+
+                    if (words.Length > _maxWordsPerNotitification)
+
+                    {
+
+                        // Split the transcript into chunks of max words
+
+                        for (int i = 0; i < words.Length; i += _maxWordsPerNotitification)
+
+                        {
+
+                            var chunk = string.Join(" ", words.Skip(i).Take(_maxWordsPerNotitification));
+
+                            var chunkEntry = new TranscriptPayload
+
+                            {
+
+                                Speaker = entry.Speaker,
+
+                                Transcript = chunk
+
+                            };
+
+                            var json = JsonSerializer.Serialize(chunkEntry);
+
+                            _webSocket.Send(json);
+
+
+
+                            // print out what we are sending to
+
+                            var jsonElement = JsonSerializer.Deserialize<TranscriptPayload>(json);
+
+                            string prettyJson = JsonSerializer.Serialize(jsonElement, new JsonSerializerOptions
+
+                            {
+
+                                WriteIndented = true
+
+                            });
+
+
+
+                           
+
+
+
+                            Console.WriteLine($"\n── Sending Batch {++_batchNo} to WebSocket ──\n");
+
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+
+                            Console.WriteLine(prettyJson);
+
+                            Console.ForegroundColor = ConsoleColor.White;
+
+
+
+                            // Wait for a specified delay before sending the next chunk
+
+                            Thread.Sleep(_delayPerWord * 10);
+
+                        }
+
+                    }
+
+                    else
+
+                    {
+
+                        // Send the whole entry as it is within the limit
+
+                        var json = JsonSerializer.Serialize(entry);
+
+                        _webSocket.Send(json);
+
+                        Thread.Sleep(_delayPerWord * words.Length);
+
+                    }
+
+                }
+
+            }
+
+            catch (JsonException ex)
+
+            {
+
+                Console.WriteLine("Error deserializing JSON: " + ex.Message);
+
+            }
+
+            catch (Exception ex)
+
+            {
+
+                Console.WriteLine("An unexpected error occurred while sending the transcript: " + ex.Message);
+
+            }
+
+        }
+
+
+
+        public class Program
+
+        {
+
+            public static void Main(string[] args)
+
+            {
+
+                // TODO: Make everything more configurable
+
+
+
+                Console.WriteLine("Preparing to stream Transcript");
+
+
+
+                using (var ws = new WebSocket("ws://localhost:9999/Transcript"))
+
+                {
+
+                    ws.OnMessage += (sender, e) =>
+
+                    {
+
+                        SuggestionPayload suggestion;
+
+                        try
+
+                        {
+
+                            suggestion = JsonSerializer.Deserialize<SuggestionPayload>(e.Data);
+
+                        }
+
+                        catch (JsonException ex)
+
+                        {
+
+                            var err = JsonSerializer.Serialize(new
+
+                            {
+
+                                error = "Invalid JSON payload",
+
+                                details = ex.Message
+
+                            });
+
+                            ws.Send(err);
+
+                            return;
+
+                        }
+
+                        Debug.Assert(suggestion != null, "SuggestionPayload should not be null after deserialization.");
+
+
+
+                        // Console.WriteLine("\n-------- processed transcript batch --------\n");
+
+                        // Console.ForegroundColor = ConsoleColor.Cyan;
+
+                        // Console.WriteLine(suggestion.SuggestionMarkdown);
+
+                        // Console.ForegroundColor = ConsoleColor.White;
+
+                    };
+
+                    ws.Connect();
+
+                    TranscriptEmulator transcriptEmulator = new TranscriptEmulator(ws);
+
+                    transcriptEmulator.SendTranscript();
+
+                    Console.WriteLine("Transcript sent successfully.");
+
+                }
+
+
+
+
+
+                Console.WriteLine("Streaming complete. Press any key to exit.");
+
+                Console.ReadKey(true);
+
+            }
+
+        }
+
     }
+
 }
