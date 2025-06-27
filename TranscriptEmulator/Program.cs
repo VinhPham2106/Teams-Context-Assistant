@@ -1,4 +1,4 @@
-﻿using WebSocketSharp;
+using WebSocketSharp;
 using System.Text.Json;
 using System.Diagnostics;
 
@@ -87,7 +87,11 @@ namespace TranscriptEmulator
             {
                 Console.WriteLine("Preparing to stream Transcript");
 
-                using (var ws = new WebSocket("ws://localhost:9999/Transcript"))
+                // Define TranscriptEndpoint from environment variable or default value
+                string transcriptEndpoint = Environment.GetEnvironmentVariable("TRANSCRIPT_ENDPOINT") ?? "ws://localhost:9999/Transcript";
+                //transcriptEndpoint = "ws://host.docker.internal:9999/Transcript";
+                Console.WriteLine("Using Transcript Endpoint: " + transcriptEndpoint);
+                using (var ws = new WebSocket(transcriptEndpoint))
                 {
                     ws.OnMessage += (sender, e) =>
                     {

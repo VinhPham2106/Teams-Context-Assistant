@@ -1,0 +1,18 @@
+services:
+  transcript-emulator:
+    build:
+      context: ./
+      dockerfile: TranscriptEmulator/Dockerfile
+      no_cache: true # dotnet is so weird i swear
+    depends_on:
+      - bot
+    environment:
+      - TRANSCRIPT_ENDPOINT=ws://bot:9999/Transcript
+
+  bot:
+    build:
+      context: ./
+      dockerfile: BotIntelligenceEmulator/Dockerfile
+      no_cache: true # Same reason as above
+    # ports:
+    #   - "9999:9999"

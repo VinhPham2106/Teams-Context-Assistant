@@ -10,22 +10,21 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /Commons
-COPY ["./Commons", "."]
+COPY ["../Commons", "."]
 WORKDIR /src
-COPY ["./TranscriptEmulator/TranscriptEmulator.csproj", "."]
-RUN dotnet restore "./TranscriptEmulator.csproj"
-COPY ./TranscriptEmulator .
+COPY ["BotIntelligenceEmulator/BotIntelligence.csproj", "."]
+RUN dotnet restore "./BotIntelligence.csproj"
+COPY ./BotIntelligenceEmulator .
 WORKDIR "/src/."
-RUN dotnet build "./TranscriptEmulator.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./BotIntelligence.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./TranscriptEmulator.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./BotIntelligence.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENV TRANSCRIPT_ENDPOINT=ws://host.docker.internal:9999/Transcript
-ENTRYPOINT ["dotnet", "TranscriptEmulator.dll"]
+ENTRYPOINT ["dotnet", "BotIntelligence.dll"]
