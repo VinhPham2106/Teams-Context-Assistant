@@ -18,7 +18,7 @@
 
 
   <ItemGroup>
-    <Compile Include="..\Commons\TranscriptPayLoad.cs" />
+    <Compile Include="..\Commons\TranscriptPayload.cs" />
     <Compile Include="..\Commons\SuggestionPayload.cs" />
   </ItemGroup>
 
